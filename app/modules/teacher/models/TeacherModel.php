@@ -8,6 +8,14 @@ class TeacherModel
         $database = new Database();
         $this->db = $database->connect();
     }
+// Lấy danh sách tất cả giảng viên (dành cho dropdown)
+ public function getTeachers() {
+    return $this->db->query("
+        SELECT t.teacher_id, u.name
+        FROM teachers t
+        JOIN users u ON t.user_id = u.user_id
+    ")->fetchAll();
+}
 
     public function getAll($filters, $limit, $offset)
     {
@@ -220,4 +228,133 @@ class TeacherModel
         $stmt = $this->db->prepare($sql);
         return $stmt->execute(['id' => $id]);
     }
+// Update bậc lương
+public function updateSalaryLevel($data)
+{
+    $sql = "UPDATE salary_levels
+            SET
+                level_name = :level_name,
+                requirement_sessions = :requirement_sessions,
+                amount = :amount
+            WHERE id = :id";
+
+    $stmt = $this->db->prepare($sql);
+
+    return $stmt->execute([
+        'level_name' => $data['level_name'],
+        'requirement_sessions' => $data['requirement_sessions'],
+        'amount' => $data['amount'],
+        'id' => $data['id']
+    ]);
+}
+    // Lấy danh sách bậc lương
+    public function getSalaryLevels()
+{
+    // Sử dụng Subquery để đếm số GV đang ở mỗi bậc lương
+    $sql = "SELECT sl.*, 
+            (SELECT COUNT(*) FROM teachers t WHERE t.current_level_id = sl.id) as teacher_count 
+            FROM salary_levels sl 
+            ORDER BY sl.type, sl.level";
+    return $this->db->query($sql)->fetchAll();
+}
+
+    // Gọi Procedure tính toán lương toàn bộ GV
+    public function calculateAllSalaries($month, $year)
+    {
+        $sql = "CALL sp_calculate_all_salaries(?, ?)";
+        return $this->db->prepare($sql)->execute([$month, $year]);
+    }
+
+    // Lấy dữ liệu từ VIEW bảng lương
+    public function getCurrentMonthPayroll()
+    {
+        $sql = "SELECT * FROM v_payroll_current_month";
+        return $this->db->query($sql)->fetchAll();
+    }
+
+    // lưu thưởng phạt
+public function saveAdjustment($data) {
+    $stmt = $this->db->prepare("
+        INSERT INTO allowance_penalties 
+        (teacher_id, type, amount, reason, month, year, created_by)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ");
+
+    return $stmt->execute([
+        $data['teacher_id'],
+        $data['type'], // bonus | penalty
+        $data['amount'],
+        $data['reason'],
+        $data['month'],
+        $data['year'],
+        $_SESSION['user_id'] ?? 1
+    ]);
+}
+
+// Lấy thống kê tháng về thưởng phạt
+public function getStats($month, $year) {
+    $sql = "
+        SELECT 
+            SUM(CASE WHEN type='bonus' THEN amount ELSE 0 END) as total_bonus,
+            SUM(CASE WHEN type='penalty' THEN amount ELSE 0 END) as total_penalty,
+            COUNT(CASE WHEN type='bonus' THEN 1 END) as bonus_count,
+            COUNT(CASE WHEN type='penalty' THEN 1 END) as penalty_count
+        FROM allowance_penalties
+        WHERE month = ? AND year = ?
+    ";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([$month, $year]);
+    return $stmt->fetch();
+}
+
+// Lịch sủ thưởng phạt
+public function getHistory($month, $year) {
+    $sql = "
+        SELECT ap.*, u.name
+        FROM allowance_penalties ap
+        JOIN teachers t ON t.teacher_id = ap.teacher_id
+        JOIN users u ON u.user_id = t.user_id
+        WHERE ap.month = ? AND ap.year = ?
+        ORDER BY ap.created_at DESC
+    ";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([$month, $year]);
+    return $stmt->fetchAll();
+}
+
+// Thêm phạt
+public function addPenalty($data) {
+    $sql = "INSERT INTO allowance_penalties 
+            (teacher_id, type, amount, reason, month, year, created_by)
+            VALUES (?, 'penalty', ?, ?, ?, ?, ?)";
+
+    $stmt = $this->db->prepare($sql);
+
+    return $stmt->execute([
+        $data['teacher_id'],
+        $data['amount'],
+        $data['reason'],
+        $data['month'],
+        $data['year'],
+        $_SESSION['user_id'] ?? 1
+    ]);
+}
+
+// Thêm thưởng
+public function addBonus($data) {
+    $sql = "INSERT INTO allowance_penalties 
+            (teacher_id, type, amount, reason, month, year, created_by)
+            VALUES (?, 'bonus', ?, ?, ?, ?, ?)";
+
+    $stmt = $this->db->prepare($sql);
+
+    return $stmt->execute([
+        $data['teacher_id'],
+        $data['amount'],
+        $data['reason'],
+        $data['month'],
+        $data['year'],
+        $_SESSION['user_id'] ?? 1
+    ]);
+}
 }

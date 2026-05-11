@@ -117,4 +117,120 @@ class TeacherController extends Controller
 
         header("Location: ?module=teacher");
     }
+    // ===== CẤU HÌNH BẬC LƯƠNG =====
+public function salary_config()
+{
+    $model = new TeacherModel();
+    // Lấy cấu hình các bậc lương hiện có
+    $salary_levels = $model->getSalaryLevels(); 
+
+    $view = ROOT_PATH . "/modules/teacher/views/salary_config.php";
+    $header = ROOT_PATH . "/modules/layouts/header_teacher.php";
+    require_once ROOT_PATH . "/modules/layouts/main.php";
+}
+// ===== Update bậc lương =====
+public function saveSalaryLevels()
+{
+    header('Content-Type: application/json');
+
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    $model = new TeacherModel();
+
+    $success = true;
+
+    foreach ($data['levels'] as $level) {
+
+        // bậc 1 luôn = 0
+        if ($level['id'] == 1 || $level['requirement_sessions'] == '') {
+            $level['requirement_sessions'] = 0;
+        }
+
+        $ok = $model->updateSalaryLevel($level);
+
+        if (!$ok) {
+            $success = false;
+        }
+    }
+
+    echo json_encode([
+        'success' => $success
+    ]);
+
+    exit;
+    foreach ($data['levels'] as $level) {
+
+    // level 1 luôn = 0
+    if ($level['level'] == 1) {
+        $level['requirement_sessions'] = 0;
+    }
+
+    $ok = $model->updateSalaryLevel($level);
+
+    if (!$ok) {
+        $success = false;
+    }
+}
+}
+// ===== BẢNG LƯƠNG THÁNG (PAYROLL) =====
+public function payroll()
+{
+    $model = new TeacherModel();
+    
+    // Nếu có yêu cầu chạy tính lương (từ nút bấm)
+    if (isset($_POST['calculate'])) {
+        $model->calculateAllSalaries(date('m'), date('Y'));
+        header("Location: ?module=teacher&action=payroll");
+        exit;
+    }
+
+    // Lấy dữ liệu từ VIEW v_payroll_current_month
+    $payroll_data = $model->getCurrentMonthPayroll();
+
+    $view = ROOT_PATH . "/modules/teacher/views/payroll.php";
+    $header = ROOT_PATH . "/modules/layouts/header_teacher.php";
+    require_once ROOT_PATH . "/modules/layouts/main.php";
+}
+// thưởng phạt
+public function bonus_penalties() {
+    $model = new TeacherModel();
+
+    $month = $_GET['month'] ?? date('m');
+    $year  = $_GET['year'] ?? date('Y');
+
+    $teachers = $model->getTeachers();
+    $stats = $model->getStats($month, $year);
+    $history = $model->getHistory($month, $year);
+
+    
+    $view = ROOT_PATH . "/modules/teacher/views/bonus_penalties.php";
+    $header = ROOT_PATH . "/modules/layouts/header_teacher.php";
+    require_once ROOT_PATH . "/modules/layouts/main.php";
+}
+
+public function saveTransaction() {
+    header('Content-Type: application/json');
+
+    try {
+        $data = json_decode(file_get_contents("php://input"), true);
+
+        $model = new TeacherModel();
+
+        if ($data['type'] == 'penalty') {
+            $ok = $model->addPenalty($data);
+        } else {
+            $ok = $model->addBonus($data);
+        }
+
+        echo json_encode(['success' => $ok]);
+
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
+    }
+
+    exit;
+}
 }

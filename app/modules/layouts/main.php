@@ -12,4 +12,4 @@ require_once $header; // header động
 
 </div>
 
-<?php require_once ROOT_PATH . '/modules/layouts/footer.php'; ?>
+<?php require_once ROOT_PATH . '/modules/layouts/footer.php'; ?>    

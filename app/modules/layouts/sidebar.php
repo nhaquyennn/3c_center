@@ -46,9 +46,32 @@
                         <li class="submenu-item">
                             <a href="?module=teacher&action=create">Thêm giảng viên</a>
                         </li>
+                        <li class="submenu-item">
+                            <a href="?module=teacher&action=salary_config">Cấu hình bậc lương</a>
+                        </li>
+                        <li class="submenu-item">
+                            <a href="?module=teacher&action=bonus_penalties">Thưởng/phạt</a>
+                        </li>
                     </ul>
                 </li>
-
+                <li class="sidebar-item">
+                    <a href="?module=face&action=attendance" class="sidebar-link">
+                        <i class="bi bi-collection-fill"></i>
+                        <span>Điểm danh</span>
+                    </a>
+                </li>
+                                <li class="sidebar-item">
+                    <a href="?module=face&action=enroll" class="sidebar-link">
+                        <i class="bi bi-collection-fill"></i>
+                        <span>Đăng kí khuôn mặt</span>
+                    </a>
+                </li>
+                 <li class="sidebar-item">
+                    <a href="?module=face&action=lateReport" class="sidebar-link">
+                        <i class="bi bi-collection-fill"></i>
+                        <span>Báo cáo đi trễ</span>
+                    </a>
+                </li>
                 <li class="sidebar-item has-sub">
                     <a href="#" class="sidebar-link">
                         <i class="bi bi-collection-fill"></i>
