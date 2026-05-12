@@ -49,15 +49,40 @@
 
                             <!-- CHUYÊN MÔN -->
                             <div class="col-md-6">
+
                                 <div class="form-group row align-items-center">
+
                                     <div class="col-lg-4 col-4">
                                         <label>Chuyên môn</label>
                                     </div>
+
                                     <div class="col-lg-8 col-8">
-                                        <input type="text" name="specialization" class="form-control"
-                                            value="<?= $teacher['specialization'] ?>">
+
+                                        <select name="specialization_id" class="form-control" required>
+
+                                            <option value="">
+                                                -- Chọn chuyên môn --
+                                            </option>
+
+                                            <?php foreach ($specializations as $s): ?>
+
+                                                <option value="<?= $s['specialization_id'] ?>"
+                                                    <?= $teacher['specialization_id'] == $s['specialization_id']
+                                                        ? 'selected'
+                                                        : '' ?>>
+
+                                                        <?= htmlspecialchars($s['name']) ?>
+
+                                                </option>
+
+                                            <?php endforeach; ?>
+
+                                        </select>
+
                                     </div>
+
                                 </div>
+
                             </div>
 
                             <!-- NGÀY VÀO -->

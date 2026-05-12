@@ -7,10 +7,9 @@
     <title>Quản lý giảng viên</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bootstrap.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/app.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/pages/teacher.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/pages/teacherrrr.css">
     <link rel="shortcut icon" href="<?= BASE_URL ?>assets/images/favicon.svg" type="image/x-icon">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/vendors/bootstrap-icons/bootstrap-icons.css">
-
 </head>
 
 <body>

@@ -1,94 +1,233 @@
-<!DOCTYPE html>
-<html lang="en">
+<div id="app">
+    <div id="main">
+        <header class="mb-3">
+            <a href="#" class="burger-btn d-block d-xl-none">
+                <i class="bi bi-justify fs-3"></i>
+            </a>
+        </header>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Table - Mazer Admin Dashboard</title>
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/bootstrap.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/app.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/pages/student.css">
-    <link rel="shortcut icon" href="<?= BASE_URL ?>assets/images/favicon.svg" type="image/x-icon">
-</head>
+        <div class="page-heading">
 
-<body>
-    <div id="app">
-        <div id="main">
-            <header class="mb-3">
-                <a href="#" class="burger-btn d-block d-xl-none">
-                    <i class="bi bi-justify fs-3"></i>
-                </a>
-            </header>
+            <!-- TITLE START-->
+            <div class="page-title">
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3">
+                        <h3>Danh sách học viên</h3>
+                    </div>
 
-            <div class="page-heading">
-                <div class="page-title">
-                    <div class="row">
-                        <div class="col-12 col-md-6 order-md-1 order-last mb-3">
-                            <h3>Danh sách học sinh</h3>
-                        </div>
-                        <div class="col-12 col-md-6 order-md-2 order-first">
-                            <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Table</li>
-                                </ol>
-                            </nav>
-                        </div>
+                    <div class="col-12 col-md-6 text-end">
+                        <a href="?module=student&action=create" class="btn btn-success">
+                            <i class="bi bi-plus"></i> Thêm học viên
+                        </a>
                     </div>
                 </div>
-                <!-- Hoverable rows start -->
-                <section class="section">
-                    <div class="row" id="table-hover-row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h4 class="card-title">Hoverable rows</h4>
-                                </div>
-                                <div class="card-content">
-                                    <!-- table hover -->
-                                    <div class="table-responsive">
-                                        <table class="table table-hover mb-0">
-                                            <thead>
-                                                <tr>
-                                                    <th>NAME</th>
-                                                    <th>RATE</th>
-                                                    <th>SKILL</th>
-                                                    <th>TYPE</th>
-                                                    <th>LOCATION</th>
-                                                    <th>ACTION</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td class="text-bold-500">Michael Right</td>
-                                                    <td>$15/hr</td>
-                                                    <td class="text-bold-500">UI/UX</td>
-                                                    <td>Remote</td>
-                                                    <td>Austin,Taxes</td>
-                                                    <td><a href="#"><i
-                                                                class="badge-circle badge-circle-light-secondary font-medium-1"
-                                                                data-feather="mail"></i></a></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="text-bold-500">Morgan Vanblum</td>
-                                                    <td>$13/hr</td>
-                                                    <td class="text-bold-500">Graphic concepts</td>
-                                                    <td>Remote</td>
-                                                    <td>Shangai,China</td>
-                                                    <td><a href="#"><i
-                                                                class="badge-circle badge-circle-light-secondary font-medium-1"
-                                                                data-feather="mail"></i></a></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
+                <!-- BREADCRUMB START-->
+                <div class="row">
+                    <div class="col-12">
+                        <nav class="breadcrumb-header">
+                            <ol class="breadcrumb mb-0">
+                                <li class="breadcrumb-item">
+                                    <a href="<?= BASE_URL ?>?module=dashboard&action=index">Trang chủ</a>
+                                </li>
+                                <li class="breadcrumb-item active">Học viên</li>
+                            </ol>
+                        </nav>
                     </div>
-                </section>
-                <!-- Hoverable rows end -->
+                </div>
+                <!-- BREADCRUMB END-->
             </div>
+            <!-- TITLE END-->
+
+            <!-- FILTER START-->
+            <form method="GET" class="mb-3">
+                <input type="hidden" name="module" value="student">
+
+                <div class="row">
+
+                    <!-- KEYWORD -->
+                    <div class="col-md-4">
+                        <input type="text" name="keyword" class="form-control"
+                            placeholder="Tên học viên / SĐT / phụ huynh" value="<?= $_GET['keyword'] ?? '' ?>">
+                    </div>
+
+                    <!-- STATUS -->
+                    <div class="col-md-3">
+                        <select name="status" class="form-control">
+                            <option value="">-- Trạng thái --</option>
+                            <option value="1" <?= (($_GET['status'] ?? '') == '1') ? 'selected' : '' ?>>
+                                Đang học
+                            </option>
+                            <option value="0" <?= (($_GET['status'] ?? '') == '0') ? 'selected' : '' ?>>
+                                Ngừng
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- BUTTON -->
+                    <div class="col-md-3">
+                        <button class="btn btn-primary">Lọc</button>
+                        <a href="?module=student" class="btn btn-secondary">Reset</a>
+                    </div>
+
+                </div>
+            </form>
+            <!-- FILTER END-->
+
+            <!-- CONTENT START -->
+            <div class="card">
+                <div class="card-content">
+                    <div class="table-responsive">
+
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Học viên</th>
+                                    <th>Phụ huynh</th>
+                                    <th>SĐT</th>
+                                    <th>Ngày sinh</th>
+                                    <th>Trạng thái</th>
+                                    <th class="text-center">Hành động</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <?php foreach ($students as $index => $s): ?>
+                                    <tr>
+
+                                        <!-- STT -->
+                                        <td>
+                                            <?= $offset + $index + 1 ?>
+                                        </td>
+
+                                        <!-- TÊN HỌC VIÊN -->
+                                        <td>
+                                            <b>
+                                                <?= htmlspecialchars($s['student_name']) ?>
+                                            </b>
+                                        </td>
+
+                                        <!-- PHỤ HUYNH -->
+                                        <td>
+                                            <?= htmlspecialchars($s['parent_name']) ?>
+                                        </td>
+
+                                        <!-- SĐT -->
+                                        <td>
+                                            <?= htmlspecialchars($s['student_phone']) ?>
+                                        </td>
+
+                                        <!-- NGÀY SINH -->
+                                        <td>
+                                            <?= $s['date_of_birth'] ?>
+                                        </td>
+
+                                        <!-- TRẠNG THÁI -->
+                                        <td>
+                                            <?php if ($s['status'] == 1): ?>
+                                                <span class="badge bg-success">Đang học</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-secondary">Ngừng</span>
+                                            <?php endif; ?>
+                                        </td>
+
+                                        <!-- ACTION -->
+                                        <td class="text-center">
+
+                                            <!-- EDIT -->
+                                            <a href="?module=student&action=edit&id=<?= $s['student_id'] ?>"
+                                                class="btn btn-sm btn-warning">
+                                                Sửa
+                                            </a>
+
+                                            <?php if ($s['status'] == 1): ?>
+                                                <!-- ARCHIVE -->
+                                                <a href="?module=student&action=archive&id=<?= $s['student_id'] ?>"
+                                                    class="btn btn-sm btn-secondary"
+                                                    onclick="return confirm('Lưu trữ học viên này?')">
+                                                    Lưu trữ
+                                                </a>
+                                            <?php else: ?>
+                                                <!-- RESTORE -->
+                                                <a href="?module=student&action=restore&id=<?= $s['student_id'] ?>"
+                                                    class="btn btn-sm btn-success"
+                                                    onclick="return confirm('Khôi phục học viên này?')">
+                                                    Khôi phục
+                                                </a>
+                                            <?php endif; ?>
+
+                                        </td>
+
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+            <!-- CONTENT END -->
+
+            <!-- NAVIGATION START -->
+            <!-- INFO -->
+            <div class="text-center mt-2">
+                Hiển thị
+                <?= $total > 0 ? $offset + 1 : 0 ?>
+                -
+                <?= min($offset + $limit, $total) ?>
+                /
+                <?= $total ?> học viên
+            </div>
+
+            <!-- PAGINATION START-->
+            <?php if ($totalPages > 1): ?>
+                <nav class="mt-3">
+                    <ul class="pagination justify-content-center">
+
+                        <?php
+                        $baseQuery = [
+                            'module' => 'student',
+                            'keyword' => $filters['keyword'] ?? '',
+                            'status' => $filters['status'] ?? ''
+                        ];
+                        ?>
+
+                        <!-- PREV -->
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link"
+                                href="?<?= http_build_query(array_merge($baseQuery, ['page' => $page - 1])) ?>">
+                                «
+                            </a>
+                        </li>
+
+                        <?php
+                        $start = max(1, $page - 2);
+                        $end = min($totalPages, $page + 2);
+                        ?>
+
+                        <!-- PAGE -->
+                        <?php for ($i = $start; $i <= $end; $i++): ?>
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link" href="?<?= http_build_query(array_merge($baseQuery, ['page' => $i])) ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <!-- NEXT -->
+                        <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                            <a class="page-link"
+                                href="?<?= http_build_query(array_merge($baseQuery, ['page' => $page + 1])) ?>">
+                                »
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+            <?php endif; ?>
+            <!-- PAGINATION END -->
+
         </div>
     </div>
-</body>

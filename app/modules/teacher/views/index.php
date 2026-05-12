@@ -59,8 +59,8 @@
                                 </div>
 
                                 <div class="col-md-2">
-                                    <input type="text" name="specialization" class="form-control"
-                                        placeholder="Chuyên môn" value="<?= $_GET['specialization'] ?? '' ?>">
+                                    <input type="text" name="specialization_name" class="form-control"
+                                        placeholder="Chuyên môn" value="<?= $_GET['specialization_name_name'] ?? '' ?>">
                                 </div>
 
                                 <div class="col-md-2">
@@ -125,7 +125,7 @@
                                                     <td class="text-center"><?= $i++ ?></td>
                                                     <td class="text-bold-500"><?= htmlspecialchars($t['name']) ?></td>
                                                     <td><?= htmlspecialchars($t['email']) ?></td>
-                                                    <td><?= $t['specialization'] ?></td>
+                                                    <td><?= $t['specialization_name'] ?></td>
                                                     <td><?= $t['hire_date'] ?></td>
                                                     <td>
                                                         <?php if ($t['salary_type'] == 'per_session'): ?>
@@ -184,7 +184,7 @@
                                         <a class="page-link"
                                             href="?module=teacher&page=<?= $page - 1 ?>
                                             &keyword=<?= $_GET['keyword'] ?? '' ?>
-                                            &specialization=<?= $_GET['specialization'] ?? '' ?>
+                                            &specialization_name=<?= $_GET['specialization_name'] ?? '' ?>
                                             &salary_type=<?= $_GET['salary_type'] ?? '' ?>
                                             &status=<?= $_GET['status'] ?? '' ?>">
                                             «
@@ -196,7 +196,7 @@
                                             <a class="page-link"
                                                 href="?module=teacher&page=<?= $i ?>
                                                 &keyword=<?= $_GET['keyword'] ?? '' ?>
-                                                &specialization=<?= $_GET['specialization'] ?? '' ?>
+                                                &specialization_name=<?= $_GET['specialization_name'] ?? '' ?>
                                                 &salary_type=<?= $_GET['salary_type'] ?? '' ?>
                                                 &status=<?= $_GET['status'] ?? '' ?>">
                                                 <?= $i ?>
@@ -209,7 +209,7 @@
                                         <a class="page-link"
                                             href="?module=teacher&page=<?= $page + 1 ?>
                                             &keyword=<?= $_GET['keyword'] ?? '' ?>
-                                            &specialization=<?= $_GET['specialization'] ?? '' ?>
+                                            &specialization_name=<?= $_GET['specialization_name'] ?? '' ?>
                                             &salary_type=<?= $_GET['salary_type'] ?? '' ?>
                                             &status=<?= $_GET['status'] ?? '' ?>">
                                             »

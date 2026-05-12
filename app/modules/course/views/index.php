@@ -6,7 +6,7 @@
     </header>
 
     <div class="page-heading">
-        <!-- Breadcum Start -->
+        <!-- Breadcrumb Start -->
         <div class="page-title">
 
             <!-- HÀNG 1 -->
@@ -41,7 +41,7 @@
             </div>
 
         </div>
-        <!-- Breadcum End -->
+        <!-- Breadcrumb End -->
 
 
         <!-- Main Start -->
@@ -174,8 +174,8 @@
                                 <!-- PREV -->
                                 <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
                                     <a class="page-link" href="?module=course&page=<?= $page - 1 ?>
-                        &keyword=<?= urlencode($keyword) ?>
-                        &status=<?= $status ?>">
+                                    &keyword=<?= urlencode($keyword) ?>
+                                    &status=<?= $status ?>">
                                         «
                                     </a>
                                 </li>

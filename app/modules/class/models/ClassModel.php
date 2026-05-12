@@ -5,88 +5,106 @@ class ClassModel
 
     public function __construct()
     {
-        $database = new Database();
-        $this->db = $database->connect();
+        $this->db = (new Database())->connect();
     }
 
     public function getAll($filters, $limit, $offset)
     {
-        $sql = "SELECT 
-                c.class_id,
-                c.course_id,
-                c.package_id,
-                c.class_name,
-                c.start_date,
+        $sql = "SELECT
+c.class_id,
+c.class_code,
+c.start_date,
 
-                co.course_name,
+    co.name AS course_name,
+    p.name AS package_name,
+    p.total_sessions,
 
-                p.name,
-                p.session_total AS total,
+    s.name AS schedule_name,
+    sh.name AS shift_name,
 
-                COUNT(DISTINCT cs.session_id) AS learned
+    -- SỐ BUỔI ĐÃ HỌC (FIX DISTINCT)
+    COUNT(DISTINCT CASE 
+        WHEN cs.status = 'done' THEN cs.session_id 
+    END) AS learned,
 
-            FROM classes c
+    -- TỔNG SỐ BUỔI
+    COUNT(DISTINCT cs.session_id) AS total_sessions_learned,
 
-            JOIN courses co 
-                ON c.course_id = co.course_id
+    -- SỐ HỌC VIÊN (tách riêng để không ảnh hưởng session)
+    (
+        SELECT COUNT(*) 
+        FROM enrollments e 
+        WHERE e.class_id = c.class_id
+    ) AS student_count,
 
-            JOIN packages p 
-                ON c.package_id = p.package_id
+    CASE
+        WHEN c.is_active = 0 THEN 'inactive'
+        WHEN COUNT(DISTINCT cs.session_id) = 0 THEN 'unscheduled'
+        WHEN COUNT(DISTINCT CASE 
+                WHEN cs.status = 'done' THEN cs.session_id 
+            END) >= p.total_sessions THEN 'done'
+        WHEN c.start_date > CURDATE() THEN 'upcoming'
+        ELSE 'studying'
+    END AS status
 
-            LEFT JOIN class_sessions cs 
-                ON cs.class_id = c.class_id
+FROM classes c
+LEFT JOIN courses co ON c.course_id = co.course_id
+LEFT JOIN packages p ON c.package_id = p.package_id
+LEFT JOIN schedules s ON c.schedule_id = s.schedule_id
+LEFT JOIN shifts sh ON c.shift_id = sh.shift_id
+LEFT JOIN sessions cs ON cs.class_id = c.class_id
 
-            WHERE 1";
+WHERE 1
+";
 
+        // FILTER
         if (!empty($filters['keyword'])) {
-            $sql .= " AND c.class_name LIKE :keyword";
+            $sql .= " AND co.name LIKE :keyword";
         }
-
         if (!empty($filters['course_id'])) {
             $sql .= " AND c.course_id = :course_id";
         }
-
         if (!empty($filters['package_id'])) {
             $sql .= " AND c.package_id = :package_id";
         }
-
-        if (!empty($filters['status'])) {
-            if ($filters['status'] == 'upcoming') {
-                $sql .= " AND c.start_date > CURDATE()";
-            } elseif ($filters['status'] == 'studying') {
-                $sql .= " AND c.start_date <= CURDATE()";
-            } elseif ($filters['status'] == 'done') {
-                $sql .= " HAVING learned >= total";
-            }
+        if (!empty($filters['schedule_id'])) {
+            $sql .= " AND c.schedule_id = :schedule_id";
+        }
+        if (!empty($filters['shift_id'])) {
+            $sql .= " AND c.shift_id = :shift_id";
         }
 
-        $sql .= " GROUP BY 
-                c.class_id,
-                c.course_id,
-                c.package_id,
-                c.class_name,
-                c.start_date,
-                co.course_name,
-                p.name,
-                p.session_total";
+        // GROUP BY
+        $sql .= " GROUP BY c.class_id";
 
-        $sql .= " ORDER BY c.class_id DESC";
+        // HAVING
+        if (!empty($filters['status'])) {
+            $sql .= " HAVING status = :status";
+        }
 
-        $sql .= " LIMIT :limit OFFSET :offset";
+        // ORDER + LIMIT
+        $sql .= " ORDER BY c.class_id DESC LIMIT :limit OFFSET :offset";
 
         $stmt = $this->db->prepare($sql);
 
-        // 🔗 bind param
+        // BIND
         if (!empty($filters['keyword'])) {
             $stmt->bindValue(':keyword', '%' . $filters['keyword'] . '%');
         }
-
         if (!empty($filters['course_id'])) {
             $stmt->bindValue(':course_id', $filters['course_id']);
         }
-
         if (!empty($filters['package_id'])) {
             $stmt->bindValue(':package_id', $filters['package_id']);
+        }
+        if (!empty($filters['schedule_id'])) {
+            $stmt->bindValue(':schedule_id', $filters['schedule_id']);
+        }
+        if (!empty($filters['shift_id'])) {
+            $stmt->bindValue(':shift_id', $filters['shift_id']);
+        }
+        if (!empty($filters['status'])) {
+            $stmt->bindValue(':status', $filters['status']);
         }
 
         $stmt->bindValue(':limit', (int) $limit, PDO::PARAM_INT);
@@ -94,125 +112,96 @@ class ClassModel
 
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
     }
 
-    // Đếm tổng số lớp (phục vụ phân trang)
     public function countAll($filters)
     {
-        $sql = "SELECT COUNT(*) FROM classes WHERE 1";
+        $sql = "SELECT COUNT(*) FROM classes c
+                LEFT JOIN courses co ON c.course_id = co.course_id
+                WHERE 1";
 
-        if (!empty($filters['course_id'])) {
-            $sql .= " AND course_id = :course_id";
+        if (!empty($filters['keyword'])) {
+            $sql .= " AND co.name LIKE :keyword";
         }
 
         $stmt = $this->db->prepare($sql);
 
-        if (!empty($filters['course_id'])) {
-            $stmt->bindValue(':course_id', $filters['course_id']);
+        if (!empty($filters['keyword'])) {
+            $stmt->bindValue(':keyword', '%' . $filters['keyword'] . '%');
         }
 
         $stmt->execute();
         return $stmt->fetchColumn();
     }
 
-    //  Tạo lớp mới
     public function create($data)
     {
-        $sql = "INSERT INTO classes (course_id, package_id, class_name, start_date)
-            VALUES (:course_id, :package_id, :class_name, :start_date)";
+        $stmt = $this->db->prepare("SELECT code FROM courses WHERE course_id = ?");
+        $stmt->execute([$data['course_id']]);
+        $prefix = $stmt->fetchColumn() ?? 'CLS';
 
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($data);
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM classes WHERE course_id = ?");
+        $stmt->execute([$data['course_id']]);
+        $count = $stmt->fetchColumn() + 1;
+
+        $data['class_code'] = $prefix . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
+
+        $sql = "INSERT INTO classes 
+            (class_code, course_id, package_id, schedule_id, shift_id, start_date)
+            VALUES (:class_code, :course_id, :package_id, :schedule_id, :shift_id, :start_date)";
+
+        $this->db->prepare($sql)->execute($data);
     }
 
-    //  Lấy chi tiết 1 lớp
-    public function findById($id)
-    {
-        $sql = "SELECT 
-                c.*,
-                co.course_name,
-                p.name,
-                p.session_total AS total
-
-            FROM classes c
-
-            JOIN courses co ON c.course_id = co.course_id
-            JOIN packages p ON c.package_id = p.package_id
-
-            WHERE c.class_id = ?";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    //  Cập nhật lớp
     public function update($data)
     {
         $sql = "UPDATE classes 
-            SET course_id = :course_id,
-                package_id = :package_id,
-                class_name = :class_name,
-                start_date = :start_date
-            WHERE class_id = :class_id";
+                SET course_id = :course_id,
+                    package_id = :package_id,
+                    schedule_id = :schedule_id,
+                    shift_id = :shift_id,
+                    start_date = :start_date
+                WHERE class_id = :class_id";
 
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($data);
-    }
-
-    //  Xóa lớp (bonus thêm cho đủ CRUD)
-    public function delete($id)
-    {
-        $sql = "DELETE FROM classes WHERE class_id = ?";
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$id]);
-    }
-
-    public function getDetail($id)
-    {
-        $sql = "SELECT 
-                c.*,
-                co.course_name,
-                p.name,
-                p.session_total AS total,
-                COUNT(DISTINCT cs.session_id) AS learned
-
-            FROM classes c
-
-            JOIN courses co 
-                ON c.course_id = co.course_id
-
-            JOIN packages p 
-                ON c.package_id = p.package_id
-
-            LEFT JOIN class_sessions cs 
-                ON cs.class_id = c.class_id
-
-            WHERE c.class_id = ?
-
-            GROUP BY 
-                c.class_id,
-                co.course_name,
-                p.name,
-                p.session_total";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $this->db->prepare($sql)->execute($data);
     }
 
     public function getById($id)
     {
         $stmt = $this->db->prepare("
-        SELECT c.*, 
-               co.name AS course_name,
-               p.name AS package_name
-        FROM classes c
-        LEFT JOIN courses co ON c.course_id = co.course_id
-        LEFT JOIN packages p ON c.package_id = p.package_id
-        WHERE c.class_id = ?
-    ");
+            SELECT 
+                c.*,
+                co.name AS course_name,
+                p.name AS package_name,
+                sh.name AS shift_name
+
+            FROM classes c
+            LEFT JOIN courses co ON c.course_id = co.course_id
+            LEFT JOIN packages p ON c.package_id = p.package_id
+            LEFT JOIN shifts sh ON c.shift_id = sh.shift_id
+
+            WHERE c.class_id = ?
+        ");
+
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function deactivate($id)
+    {
+        $this->db->prepare("UPDATE classes SET is_active = 0 WHERE class_id = ?")
+            ->execute([$id]);
+    }
+
+    public function activate($id)
+    {
+        $this->db->prepare("UPDATE classes SET is_active = 1 WHERE class_id = ?")
+            ->execute([$id]);
+    }
+
+    public function getLastInsertId()
+    {
+        return $this->db->lastInsertId();
     }
 }

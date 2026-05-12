@@ -1,20 +1,27 @@
 <?php
 session_start();
 
+// =========================
+// CONFIG
+// =========================
 define('BASE_URL', '/KLTN/source/app/public/');
 define('ROOT_PATH', dirname(__DIR__));
 
+// =========================
+// AUTOLOAD
+// =========================
 spl_autoload_register(function ($class) {
 
     $paths = [
         ROOT_PATH . "/core/$class.php",
     ];
 
-    // scan tất cả modules
+    // models
     foreach (glob(ROOT_PATH . "/modules/*/models/$class.php") as $file) {
         $paths[] = $file;
     }
 
+    // controllers
     foreach (glob(ROOT_PATH . "/modules/*/controllers/$class.php") as $file) {
         $paths[] = $file;
     }
@@ -27,30 +34,77 @@ spl_autoload_register(function ($class) {
     }
 });
 
-function asset($path) {
+// =========================
+// HELPER
+// =========================
+function asset($path)
+{
     return BASE_URL . 'assets/' . $path;
 }
 
+// =========================
+// ROUTING INPUT
+// =========================
 $module = preg_replace('/[^a-zA-Z0-9_]/', '', $_GET['module'] ?? 'dashboard');
-$action = preg_replace('/[^a-zA-Z0-9_]/', '', $_GET['action'] ?? 'index');  
+$action = preg_replace('/[^a-zA-Z0-9_]/', '', $_GET['action'] ?? 'index');
 
+// =========================
+// PUBLIC MODULE (KHÔNG CẦN LOGIN)
+// =========================
+$publicModules = ['auth'];
+
+// =========================
+// AUTH GUARD (CHẶN TOÀN HỆ THỐNG)
+// =========================
+if (!in_array($module, $publicModules)) {
+
+    if (!isset($_SESSION['user'])) {
+        header("Location: index.php?module=auth&action=login");
+        exit;
+    }
+}
+
+// =========================
+// AUTO CONTROLLER
+// =========================
 $controllerName = ucfirst($module) . "Controller";
 $controllerPath = ROOT_PATH . "/modules/$module/controllers/$controllerName.php";
 
+// check module tồn tại
 if (!file_exists($controllerPath)) {
     die("Module không tồn tại: $module");
 }
 
 require_once $controllerPath;
 
+// check class
 if (!class_exists($controllerName)) {
     die("Controller không tồn tại: $controllerName");
 }
 
-$controller = new $controllerName();
+// =========================
+// INIT CONTROLLER
+// =========================
+require_once ROOT_PATH . "/core/Database.php";
 
+$db = new PDO(
+    "mysql:host=localhost;dbname=3c_center;charset=utf8",
+    "root",
+    ""
+);
+
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+$controller = new $controllerName($db);
+
+// =========================
+// CHECK ACTION
+// =========================
 if (!method_exists($controller, $action)) {
     die("Action không tồn tại: $action");
 }
 
+// =========================
+// EXECUTE
+// =========================
 $controller->$action();

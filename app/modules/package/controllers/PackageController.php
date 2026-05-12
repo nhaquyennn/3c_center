@@ -76,7 +76,7 @@ class PackageController extends Controller
             'name' => $_POST['name'],
             'total_sessions' => $_POST['total_sessions'],
             'price' => $_POST['price'],
-            'course_id' => $_POST['course_id'], 
+            'course_id' => $_POST['course_id'],
             'status' => $_POST['status']
         ]);
 
@@ -91,5 +91,15 @@ class PackageController extends Controller
 
         header("Location: ?module=package");
         exit;
+    }
+
+    public function getByCourse()
+    {
+        $course_id = $_GET['course_id'] ?? 0;
+
+        $model = new PackageModel();
+        $data = $model->getByCourse($course_id);
+
+        echo json_encode($data);
     }
 }

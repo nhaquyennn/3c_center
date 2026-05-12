@@ -3,72 +3,131 @@ class SessionController extends Controller
 {
     public function index()
     {
-        $class_id = $_GET['class_id'] ?? null;
-
-        if (!$class_id) {
-            die("Thiếu class_id");
-        }
+        $class_id = $_GET['class_id'];
 
         $model = new SessionModel();
+        $roomModel = new RoomModel();
+        $shiftModel = new ShiftModel();
+        $teacherModel = new TeacherModel();
+
+        $classModel = new ClassModel();
+        $class = $classModel->getById($class_id);
+
         $sessions = $model->getByClass($class_id);
+        $rooms = $roomModel->getAll('', 'active', '', '', 1000, 0);
+        $shifts = $shiftModel->getAll([], 1000, 0);
+        $teachers = $teacherModel->getAll([], 1000, 0);
 
-        require_once ROOT_PATH . "/modules/teacher/models/TeacherModel.php";
-        $teachers = (new TeacherModel())->getAll([], 1000, 0);
-
-        $header = ROOT_PATH . "/modules/layouts/header_session.php";
+        $header = ROOT_PATH . "/modules/layouts/header_teacher.php";
         $view = ROOT_PATH . "/modules/session/views/index.php";
         require_once ROOT_PATH . "/modules/layouts/main.php";
     }
 
-    public function assign()
+    public function generate()
     {
         $model = new SessionModel();
 
-        $data = [
-            'session_id' => $_POST['session_id'],
-            'teacher_id' => $_POST['teacher_id']
-        ];
+        $model->deleteSessions($_POST['class_id']);
 
-        // check trùng lịch
-        if ($model->isTeacherBusy($data['teacher_id'], $data['session_id'])) {
-            die("Giáo viên đã có lịch trùng!");
-        }
+        $model->generateSessionsCustom(
+            $_POST['class_id'],
+            $_POST['start_date'],
+            $_POST['total_sessions']
+        );
 
-        $model->assignTeacher($data);
+        header("Location: ?module=session&action=index&class_id=" . $_POST['class_id']);
+        exit;
+    }
+
+    public function assignRoom()
+    {
+        (new SessionModel())->updateRoom(
+            $_POST['session_id'],
+            $_POST['room_id']
+        );
 
         header("Location: " . $_SERVER['HTTP_REFERER']);
     }
 
-    public function createEvent()
+    public function assignTime()
     {
-        $data = json_decode(file_get_contents("php://input"), true);
+        (new SessionModel())->updateShift(
+            $_POST['session_id'],
+            $_POST['shift_id']
+        );
 
-        $model = new SessionModel();
-        $model->createEvent($data);
+        header("Location: " . $_SERVER['HTTP_REFERER']);
     }
 
-    public function getEvents()
+    public function assignTeacher()
     {
         $model = new SessionModel();
-        $events = $model->getEvents();
 
-        echo json_encode($events);
+        $model->saveTeachers(
+            $_POST['session_id'],
+            $_POST['main_teacher_id'] ?? null,
+            $_POST['assistant_ids'] ?? []
+        );
+
+        header("Location: " . $_SERVER['HTTP_REFERER']);
     }
 
-    public function calendar()
+    public function takeAttendance()
     {
-        $class_id = $_GET['class_id'] ?? null;
+        $model = new SessionModel();
 
-        if (!$class_id) {
-            header("Location: ?module=class");
-            exit;
-        }
+        $model->takeAttendance($_GET['id']);
+        $model->updateStatus($_GET['id'], 'done');
 
-        require_once ROOT_PATH . "/modules/teacher/models/TeacherModel.php";
-        $teachers = (new TeacherModel())->getAll([], 1000, 0);
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+    }
 
-        $header = ROOT_PATH . "/modules/layouts/header_session.php";
-        $view = ROOT_PATH . "/modules/session/views/calendar.php";
-        require_once ROOT_PATH . "/modules/layouts/main.php";
+    public function cancel()
+    {
+        (new SessionModel())->updateStatus($_GET['id'], 'cancelled');
+
+        header("Location: " . $_SERVER['HTTP_REFERER']);
+    }
+
+    public function getTeachersWithStatus()
+    {
+        $session_id = $_GET['session_id'];
+
+        $model = new SessionModel();
+        $teachers = $model->getTeachersWithStatus($session_id);
+
+        echo json_encode($teachers);
+    }
+
+    public function getRoomsWithStatus()
+    {
+        $session_id = $_GET['session_id'];
+
+        $model = new SessionModel();
+        $rooms = $model->getRoomsWithStatus($session_id);
+
+        echo json_encode($rooms);
+    }
+
+    public function getStudentsForAttendance()
+    {
+        $session_id = $_GET['session_id'];
+
+        $model = new SessionModel();
+        $data = $model->getStudentsForAttendance($session_id);
+
+        echo json_encode($data);
+    }
+
+    public function saveAttendance()
+    {
+        $model = new SessionModel();
+
+        $model->saveAttendance(
+            $_POST['session_id'],
+            $_POST['status']
+        );
+
+        header("Location: " . $_SERVER['HTTP_REFERER']);
     }
 }

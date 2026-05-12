@@ -1,4 +1,5 @@
 <?php
+
 class TeacherController extends Controller
 {
     // ===== DANH SÁCH =====
@@ -7,10 +8,10 @@ class TeacherController extends Controller
         $model = new TeacherModel();
 
         $page = $_GET['page'] ?? 1;
-        $limit = 10;
-        $offset = ($page - 1) * $limit;
 
-        $keyword = $_GET['keyword'] ?? null;
+        $limit = 10;
+
+        $offset = ($page - 1) * $limit;
 
         $filters = [
             'keyword' => $_GET['keyword'] ?? null,
@@ -20,11 +21,18 @@ class TeacherController extends Controller
         ];
 
         $teachers = $model->getAll($filters, $limit, $offset);
+
         $total = $model->countAll($filters);
 
         $totalPages = ceil($total / $limit);
 
+        // specialization list
+        $specializationModel = new SpecializationModel();
+
+        $specializations = $specializationModel->getAll('', 'active', 999, 0);
+
         $view = ROOT_PATH . "/modules/teacher/views/index.php";
+
         $header = ROOT_PATH . "/modules/layouts/header_teacher.php";
 
         require_once ROOT_PATH . "/modules/layouts/main.php";
@@ -33,7 +41,12 @@ class TeacherController extends Controller
     // ===== FORM CREATE =====
     public function create()
     {
+        $specializationModel = new SpecializationModel();
+
+        $specializations = $specializationModel->getAll('', 'active', 999, 0);
+
         $view = ROOT_PATH . "/modules/teacher/views/create.php";
+
         $header = ROOT_PATH . "/modules/layouts/header_teacher.php";
 
         require_once ROOT_PATH . "/modules/layouts/main.php";
@@ -47,7 +60,7 @@ class TeacherController extends Controller
         $data = [
             'name' => $_POST['name'],
             'email' => $_POST['email'],
-            'specialization' => $_POST['specialization'],
+            'specialization_id' => $_POST['specialization_id'],
             'hire_date' => $_POST['hire_date'],
             'salary_type' => $_POST['salary_type'],
             'salary_value' => $_POST['salary_value'],
@@ -57,6 +70,7 @@ class TeacherController extends Controller
         $model->create($data);
 
         header("Location: ?module=teacher");
+        exit;
     }
 
     // ===== FORM EDIT =====
@@ -65,9 +79,16 @@ class TeacherController extends Controller
         $id = $_GET['id'] ?? 0;
 
         $model = new TeacherModel();
+
         $teacher = $model->findById($id);
 
+        // specialization list
+        $specializationModel = new SpecializationModel();
+
+        $specializations = $specializationModel->getAll('', 'active', 999, 0);
+
         $view = ROOT_PATH . "/modules/teacher/views/edit.php";
+
         $header = ROOT_PATH . "/modules/layouts/header_teacher.php";
 
         require_once ROOT_PATH . "/modules/layouts/main.php";
@@ -82,7 +103,7 @@ class TeacherController extends Controller
             'teacher_id' => $_POST['teacher_id'],
             'name' => $_POST['name'],
             'email' => $_POST['email'],
-            'specialization' => $_POST['specialization'],
+            'specialization_id' => $_POST['specialization_id'],
             'hire_date' => $_POST['hire_date'],
             'salary_type' => $_POST['salary_type'],
             'salary_value' => $_POST['salary_value']
@@ -100,21 +121,43 @@ class TeacherController extends Controller
         $id = $_GET['id'] ?? 0;
 
         if ($id) {
+
             $model = new TeacherModel();
+
             $model->delete($id);
         }
 
         header("Location: ?module=teacher&action=index");
+
         exit;
     }
 
+    // ===== RESTORE =====
     public function restore()
     {
         $id = $_GET['id'];
 
         $model = new TeacherModel();
+
         $model->restore($id);
 
         header("Location: ?module=teacher");
+
+        exit;
     }
+
+    public function history()
+    {
+        $teacherId = $_SESSION['user']['id'];
+
+        $model = new TeacherModel();
+
+        $data = $model->getTeachingHistoryByUserId($teacherId);
+
+        $view = ROOT_PATH . "/modules/teacher/views/history.php";
+        $header = ROOT_PATH . "/modules/layouts/header_teacher.php";
+        require_once ROOT_PATH . "/modules/layouts/main.php";
+    }
+
+    
 }

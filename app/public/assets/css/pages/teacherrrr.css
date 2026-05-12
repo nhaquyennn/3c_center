@@ -1,0 +1,700 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* ==================================================
+ROOT
+================================================== */
+:root {
+
+    --primary: #0f172a;
+    --primary-hover: #1e293b;
+    --primary-glow: rgba(15, 23, 42, 0.15);
+
+    --accent: #facc15;
+    --accent-hover: #eab308;
+    --accent-soft: rgba(250, 204, 21, 0.15);
+
+    --success: #16a34a;
+    --danger: #dc2626;
+
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+
+    --bg-app: #f8fafc;
+
+    --card-bg: rgba(255, 255, 255, 0.88);
+
+    --border-color: rgba(226, 232, 240, 0.9);
+
+    --radius-lg: 18px;
+    --radius-md: 12px;
+
+    --shadow-main:
+        0 8px 25px rgba(15, 23, 42, 0.06);
+
+    --transition:
+        all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ==================================================
+GLOBAL
+================================================== */
+
+html {
+    font-size: 60%;
+}
+
+body {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    background:
+        radial-gradient(circle at top left,
+            rgba(185, 224, 12, 0.22),
+            transparent 30%),
+
+        radial-gradient(circle at bottom right,
+            rgba(194, 188, 19, 0.338),
+            transparent 30%),
+
+        #f8fafc;
+
+    color: var(--text-main);
+
+    margin: 0;
+
+    min-height: 100vh;
+
+    overflow-x: hidden;
+
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==================================================
+LAYOUT
+================================================== */
+
+.container,
+.container-fluid,
+.main-content {
+    width: 100%;
+    max-width: 100% !important;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/* ==================================================
+TYPOGRAPHY
+================================================== */
+
+.page-title h3 {
+
+    font-size: 2rem;
+
+    font-weight: 800;
+
+    letter-spacing: -0.03em;
+
+    margin-bottom: 6px;
+
+    background:
+        linear-gradient(135deg,
+            #0f172a 0%,
+            #334155 60%,
+            #facc15 100%);
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.breadcrumb-item a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: var(--transition);
+    margin-bottom: 10px;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--accent-hover);
+}
+
+/* ==================================================
+   CARD
+================================================== */
+
+.card {
+
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    box-shadow: var(--shadow-main);
+    padding: 18px;
+    transition: var(--transition);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 16px 30px rgba(15, 23, 42, 0.08);
+}
+
+/* ==================================================
+FORM
+================================================== */
+
+.form-control {
+    height: 38px;
+    border-radius: var(--radius-md);
+    border: 1.5px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.92);
+    padding: 0 12px;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow:
+        0 0 0 4px var(--accent-soft);
+    background: white;
+}
+
+
+/* =========================
+BUTTON
+========================= */
+
+.btn,
+a.btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 72px;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    line-height: 1;
+    border: none;
+    transition: var(--transition);
+}
+
+/* action group spacing */
+td .btn {
+    margin: 2px;
+}
+
+.table td .btn {
+
+    min-width: 78px;
+
+    height: 32px;
+
+    border-radius: 10px;
+
+    font-size: 0.9rem;
+}
+
+/* ===== PRIMARY ===== */
+
+.btn-primary {
+
+    height: 37px;
+
+    background:
+        linear-gradient(135deg,
+            #0f172a,
+            #1e293b);
+
+    color: white;
+
+    box-shadow:
+        0 8px 18px rgba(15, 23, 42, 0.18);
+}
+
+.btn-primary:hover {
+
+    transform: translateY(-2px);
+
+    background:
+        linear-gradient(135deg,
+            #1e293b,
+            #334155);
+}
+
+/* ===== SUCCESS ===== */
+
+.btn-success {
+
+    background:
+        linear-gradient(135deg,
+            #facc15,
+            #eab308);
+
+    color: #1e293b;
+
+    box-shadow:
+        0 8px 18px rgba(250, 204, 21, 0.22);
+}
+
+.btn-success:hover {
+
+    transform: translateY(-2px);
+
+    filter: brightness(1.03);
+}
+
+/* ===== SECONDARY ===== */
+
+.btn-secondary {
+    height: 37px;
+    background: #646561;
+    color: #334155;
+}
+
+.btn-secondary:hover {
+    background: #cbd5e1;
+}
+
+/* ==================================================
+   TABLE
+================================================== */
+
+.table {
+
+    width: 100%;
+
+    border-collapse: separate;
+
+    border-spacing: 0 8px;
+}
+
+/* ===== HEADER ===== */
+
+.table thead th {
+
+    border: none;
+
+    color: var(--text-muted);
+
+    font-size: 0.8rem;
+
+    text-transform: uppercase;
+
+    font-weight: 800;
+
+    letter-spacing: 0.08em;
+
+    padding: 6px 14px;
+}
+
+/* ===== ROW ===== */
+
+.table tbody tr {
+
+    background: rgba(255, 255, 255, 0.96);
+
+    box-shadow:
+        0 4px 10px rgba(15, 23, 42, 0.03);
+
+    transition: var(--transition);
+}
+
+.table-hover tbody tr:hover {
+
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* ===== CELL ===== */
+
+.table tbody td {
+
+    border: none;
+
+    padding: 10px 14px;
+
+    font-size: 1rem;
+
+    font-weight: 500;
+
+    color: #334155;
+}
+
+/* bo góc */
+
+.table tbody tr td:first-child {
+
+    border-radius:
+        var(--radius-md) 0 0 var(--radius-md);
+}
+
+.table tbody tr td:last-child {
+
+    border-radius:
+        0 var(--radius-md) var(--radius-md) 0;
+}
+
+/* ==================================================
+   ACTION BUTTON
+================================================== */
+
+.action-btn {
+
+    width: 30px;
+
+    height: 30px;
+
+    padding: 0;
+
+    border-radius: 8px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border: none;
+
+    transition: var(--transition);
+}
+
+/* edit */
+
+.btn-edit {
+
+    background: #fef9c3;
+
+    color: #ca8a04;
+}
+
+.btn-edit:hover {
+
+    background: #facc15;
+
+    color: #1e293b;
+
+    transform:
+        scale(1.08);
+}
+
+/* delete */
+
+.btn-delete {
+
+    background: #fee2e2;
+
+    color: #dc2626;
+}
+
+.btn-delete:hover {
+
+    background: #ef4444;
+
+    color: white;
+
+    transform:
+        scale(1.08);
+}
+
+/* ==================================================
+   SIDEBAR
+================================================== */
+
+/* sidebar chính */
+#sidebar,
+.sidebar-wrapper {
+
+    width: 250px !important;
+    min-width: 250px !important;
+
+    background: #ffffff;
+
+    transition: all 0.3s ease;
+}
+
+/* content */
+#main {
+    margin-left: 250px;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* menu */
+.sidebar-wrapper .menu {
+    padding: 0 12px;
+}
+
+/* item menu */
+.sidebar-wrapper .menu .sidebar-item {
+
+    margin-bottom: 6px;
+}
+
+/* link menu */
+.sidebar-wrapper .menu .sidebar-link {
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px 14px;
+
+    font-size: 0.95rem;
+    font-weight: 500;
+
+    border-radius: 12px;
+
+    color: #25396f;
+
+    transition: all 0.25s ease;
+}
+
+/* hover */
+.sidebar-wrapper .menu .sidebar-link:hover {
+
+    background: #f0f4ff;
+    color: #435ebe;
+}
+
+/* icon */
+.sidebar-wrapper .menu .sidebar-link i {
+
+    font-size: 1rem;
+    min-width: 20px;
+}
+
+/* ==================================================
+   ACTIVE MENU
+================================================== */
+
+/* menu cha active */
+.sidebar-item.active>.sidebar-link {
+
+    background: #435ebe !important;
+
+    color: #fff !important;
+
+    font-weight: 700;
+
+    box-shadow: 0 4px 12px rgba(67, 94, 190, 0.25);
+}
+
+/* icon active */
+.sidebar-item.active>.sidebar-link i {
+
+    color: #fff !important;
+}
+
+/* submenu luôn mở */
+.sidebar-item.active .submenu {
+
+    display: block !important;
+}
+
+/* submenu */
+.sidebar-wrapper .menu .submenu {
+
+    padding-left: 0 !important;
+
+    margin-top: 6px;
+
+    list-style: none;
+}
+
+/* submenu item */
+.sidebar-wrapper .menu .submenu .submenu-item {
+
+    list-style: none;
+
+    margin-bottom: 4px;
+
+    padding-left: 10px;
+}
+
+/* submenu link */
+.sidebar-wrapper .menu .submenu .submenu-item a {
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 8px 12px;
+
+    border-radius: 8px;
+
+    color: #607080;
+
+    font-size: 0.88rem;
+    font-weight: 500;
+
+    transition: all 0.2s ease;
+}
+
+/* icon submenu */
+.sidebar-wrapper .menu .submenu .submenu-item a i {
+
+    font-size: 0.7rem;
+
+    color: #8d99ae;
+
+    transition: all 0.2s ease;
+}
+
+/* hover submenu */
+.sidebar-wrapper .menu .submenu .submenu-item a:hover {
+
+    background: #f4f7ff;
+
+    color: #435ebe;
+}
+
+/* hover icon submenu */
+.sidebar-wrapper .menu .submenu .submenu-item a:hover i {
+
+    color: #435ebe;
+}
+
+/* submenu active */
+.sidebar-wrapper .menu .submenu .submenu-item.active a {
+
+    background: #eef2ff;
+
+    color: #435ebe !important;
+
+    font-weight: 700;
+}
+
+/* icon active submenu */
+.sidebar-wrapper .menu .submenu .submenu-item.active a i {
+
+    color: #435ebe !important;
+}
+
+
+/* ==================================================
+   LOGO
+================================================== */
+
+.logo {
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+}
+
+.logo a {
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
+}
+
+.logo img {
+
+    width: 120px;
+
+    height: auto;
+
+    object-fit: contain;
+
+    display: block;
+}
+
+
+/* ==================================================
+   BREADCRUMB
+================================================== */
+
+.breadcrumb-header {
+
+    margin-bottom: 20px;
+}
+
+
+/* ==================================================
+   RESPONSIVE
+================================================== */
+
+@media (max-width: 768px) {
+
+    html {
+
+        font-size: 85%;
+    }
+
+    .page-title h3 {
+
+        font-size: 1.7rem;
+    }
+
+    .card {
+
+        padding: 14px;
+    }
+
+    .btn {
+
+        width: 100%;
+    }
+
+    .table tbody td {
+
+        padding: 10px;
+    }
+
+    /* mobile sidebar */
+    #sidebar,
+    .sidebar-wrapper {
+
+        width: 220px !important;
+        min-width: 220px !important;
+    }
+
+    #main {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    .logo img {
+
+        width: 100px;
+    }
+}
+
+/* =========================================
+SIDEBAR COLLAPSE
+========================================= */
+
+#main {
+    margin-left: 250px;
+    transition: all .3s ease;
+}
+
+/* khi sidebar bị ẩn */
+.sidebar-hidden #main {
+
+    margin-left: 0;
+
+    width: 100%;
+}
+
+/* sidebar hidden */
+.sidebar-hidden #sidebar {
+
+    transform: translateX(-100%);
+}

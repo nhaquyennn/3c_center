@@ -112,4 +112,16 @@ class PackageModel
         return $this->db->prepare("DELETE FROM packages WHERE package_id=?")
             ->execute([$id]);
     }
+
+    public function getByCourse($course_id)
+    {
+        $stmt = $this->db->prepare("
+            SELECT package_id, name, total_sessions  
+            FROM packages
+            WHERE course_id = ?
+        ");
+        $stmt->execute([$course_id]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

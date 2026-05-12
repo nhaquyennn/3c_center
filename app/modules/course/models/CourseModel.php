@@ -54,15 +54,18 @@ class CourseModel
     // =========================
     public function create($data)
     {
+        $code = $this->generateCourseCode($data['name']);
+
         $stmt = $this->db->prepare("
-            INSERT INTO courses (name, description, status)
-            VALUES (?, ?, ?)
-        ");
+        INSERT INTO courses (name, description, status, code)
+        VALUES (?, ?, ?, ?)
+    ");
 
         return $stmt->execute([
             $data['name'],
             $data['description'],
-            $data['status']
+            $data['status'],
+            $code
         ]);
     }
 
@@ -115,5 +118,27 @@ class CourseModel
         $stmt->execute($params);
 
         return $stmt->fetchColumn();
+    }
+
+    // =============================
+    // AUTO GENERATE CODE
+    // =============================
+    private function generateCourseCode($name)
+    {
+        $name = strtolower($name);
+
+        if (str_contains($name, 'python')) {
+            return 'PYT';
+        }
+
+        if (str_contains($name, 'robotics') || str_contains($name, 'robo')) {
+            return 'RBT';
+        }
+
+        if (str_contains($name, 'scratch')) {
+            return 'SCR';
+        }
+
+        return 'CRS';
     }
 }

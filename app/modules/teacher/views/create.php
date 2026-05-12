@@ -32,7 +32,16 @@
                             <!-- CHUYÊN MÔN -->
                             <div class="col-md-6">
                                 <label>Chuyên môn</label>
-                                <input type="text" name="specialization" class="form-control">
+                                <select name="specialization_id" class="form-control" required>
+                                    <option value="">
+                                        -- Chọn chuyên môn --
+                                    </option>
+                                    <?php foreach ($specializations as $sp): ?>
+                                        <option value="<?= $sp['specialization_id'] ?>">
+                                            <?= $sp['name'] ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
 
                             <!-- NGÀY VÀO -->

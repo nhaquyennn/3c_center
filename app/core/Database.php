@@ -1,7 +1,7 @@
 <?php
 class Database {
     private $host = "localhost";
-    private $dbname = "3c_center_new";
+    private $dbname = "3c_center";
     private $username = "root";
     private $password = "";
 
